@@ -41,7 +41,7 @@ public class PathChainContainer {
         String[] paths = uri.split("/");
         String path;
         int length = paths.length;
-        List<String> args = new ArrayList<>();
+        List<String> args = new ArrayList<String>();
         for (int i = 0; i < length; i++) {
             path = paths[i].trim();
             //先查找有明确对应的节点 ，如不存在再查询当前有没有带*的节点
@@ -136,7 +136,7 @@ public class PathChainContainer {
     private static Map<HttpMethod, Map<String, PathNode>> PATH_CHAIN;
 
     private PathChainContainer() {
-        PATH_CHAIN = new HashMap<>();
+        PATH_CHAIN = new HashMap<HttpMethod, Map<String, PathNode>>();
         PATH_CHAIN.put(HttpMethod.GET, new HashMap<String, PathNode>());
         PATH_CHAIN.put(HttpMethod.POST, new HashMap<String, PathNode>());
         PATH_CHAIN.put(HttpMethod.PUT, new HashMap<String, PathNode>());
@@ -167,7 +167,7 @@ public class PathChainContainer {
         public Map<String, PathNode> children;
 
         private PathNode() {
-            this.children = new HashMap<>();
+            this.children = new HashMap<String, PathNode>();
         }
 
     }

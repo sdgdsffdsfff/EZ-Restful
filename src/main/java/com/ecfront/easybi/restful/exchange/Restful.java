@@ -34,7 +34,7 @@ public class Restful {
      * @param uri        请求URI
      * @param parameter  请求参数
      * @return 返回信息
-     * @see # excute(HttpMethod httpMethod, String uri, Object model, Map<String, Object[]> parameter, InputStream inputStream)
+     * @see # execute(HttpMethod httpMethod, String uri, Object model, Map<String, Object[]> parameter, InputStream inputStream)
      */
     public ResponseVO excute(HttpMethod httpMethod, String uri, Map<String, Object[]> parameter) throws InvocationTargetException, IllegalAccessException {
         return excute(httpMethod, uri, null, parameter, null);
@@ -47,7 +47,7 @@ public class Restful {
      * @param uri        请求URI
      * @param model      请求包含的模型，要求此Object为@Model
      * @return 返回信息
-     * @see # excute(HttpMethod httpMethod, String uri, Object model, Map<String, Object[]> parameter, InputStream inputStream)
+     * @see # execute(HttpMethod httpMethod, String uri, Object model, Map<String, Object[]> parameter, InputStream inputStream)
      */
     public ResponseVO excute(HttpMethod httpMethod, String uri, Object model) throws InvocationTargetException, IllegalAccessException {
         return excute(httpMethod, uri, model, null, null);
@@ -67,7 +67,7 @@ public class Restful {
         if (logger.isDebugEnabled()) {
             logger.debug("excuting... url:{},method:{}", uri, httpMethod.getCode());
         }
-        return RestfulExecutor.getInstance().excute(httpMethod, uri, model, parameter, inputStream);
+        return RestfulExecutor.getInstance().execute(httpMethod, uri, model, parameter, inputStream);
     }
 
     public static Restful getInstance() {

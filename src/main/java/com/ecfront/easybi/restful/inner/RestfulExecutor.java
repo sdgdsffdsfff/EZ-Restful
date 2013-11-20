@@ -20,12 +20,12 @@ import java.util.Map;
  */
 public class RestfulExecutor {
 
-    public ResponseVO excute(HttpMethod httpMethod, String uri, Object model, Map<String, Object[]> parameter, InputStream inputStream) throws InvocationTargetException, IllegalAccessException {
+    public ResponseVO execute(HttpMethod httpMethod, String uri, Object model, Map<String, Object[]> parameter, InputStream inputStream) throws InvocationTargetException, IllegalAccessException {
         Object[] restfulResult = PathChainContainer.getInstance().parsePath(httpMethod, uri);
         if (restfulResult != null) {
             Object reflectObject = restfulResult[0];
             Method reflectMethod = (Method) restfulResult[1];
-            List<Object> invokeArgs = new ArrayList<>();
+            List<Object> invokeArgs = new ArrayList<Object>();
             if (packageInvokeArgs(reflectMethod.getParameterTypes(), (List<String>) restfulResult[2], parameter, model, invokeArgs)) {
                 return new ResponseVO(UniformCode.SUCCESS.getCode(), reflectMethod.invoke(reflectObject, invokeArgs.toArray()));
             } else {
