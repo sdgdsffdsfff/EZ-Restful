@@ -1,5 +1,6 @@
 package com.ecfront.easybi.restful.inner;
 
+import com.ecfront.easybi.restful.exchange.ControlHelper;
 import com.ecfront.easybi.restful.exchange.HttpMethod;
 import com.ecfront.easybi.restful.exchange.ResponseVO;
 import com.ecfront.easybi.restful.exchange.annotation.Model;
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * <h1>请求解析执行类</h1>
@@ -27,12 +29,12 @@ public class RestfulExecutor {
             Method reflectMethod = (Method) restfulResult[1];
             List<Object> invokeArgs = new ArrayList<Object>();
             if (packageInvokeArgs(reflectMethod.getParameterTypes(), (List<String>) restfulResult[2], parameter, model, invokeArgs)) {
-                return new ResponseVO(UniformCode.SUCCESS.getCode(), reflectMethod.invoke(reflectObject, invokeArgs.toArray()));
+                return ControlHelper.success(reflectMethod.invoke(reflectObject, invokeArgs.toArray()));
             } else {
-                return new ResponseVO(UniformCode.BAD_REQUEST.getCode());
+                return ControlHelper.badRequest();
             }
         }
-        return new ResponseVO(UniformCode.UNKNOWN_ERROR.getCode());
+        return ControlHelper.unknownError();
     }
 
     /**
@@ -75,6 +77,9 @@ public class RestfulExecutor {
             } else if (BigDecimal.class
                     .isAssignableFrom(parameterType)) {
                 invokeArgs.add(new BigDecimal(urlParameters.get(i)));
+            } else if (UUID.class
+                    .isAssignableFrom(parameterType)) {
+                invokeArgs.add(UUID.fromString(urlParameters.get(i)));
             } else {
                 if (logger.isWarnEnabled()) {
                     logger.warn("The parameter type of " + parameterType.getName() + " is not registered.");

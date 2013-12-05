@@ -105,6 +105,9 @@ public class PathChainContainer {
      * @param method    反射获取的方法
      */
     private void addPaths(Map<String, PathNode> pathChain, String uri, Object object, Method method) {
+        if(uri.trim().startsWith("/")){
+            uri=uri.trim().substring(1);
+        }
         String[] paths = uri.split("/");
         Map<String, PathNode> currentPathChain = pathChain;
         PathNode currentPathNode;

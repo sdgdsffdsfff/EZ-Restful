@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.ecfront.easybi</groupId>
-    <artifactId>restful</artifactId>
+    <groupId>com.ecfront</groupId>
+    <artifactId>ez-restful</artifactId>
     <version>1.0</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -15,7 +15,6 @@
         <junit.version>4.8.2</junit.version>
         <slf4j.version>1.7.5</slf4j.version>
         <logback.version>1.0.13</logback.version>
-        <mainclass></mainclass>
     </properties>
 
     <dependencies>
@@ -29,6 +28,13 @@
             <artifactId>fastjson</artifactId>
             <version>${fastjson.version}</version>
         </dependency>
+        <!-- =====================commons===================== -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>1.3.2</version>
+        </dependency>
+
         <!-- =====================Log===================== -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -46,6 +52,21 @@
             <version>${logback.version}</version>
         </dependency>
 
+        <!-- =====================Provided===================== -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>3.2.5.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- =====================Test===================== -->
         <dependency>
             <groupId>junit</groupId>
@@ -54,20 +75,13 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-            <scope>provided</scope>
-        </dependency>
-
     </dependencies>
 
     <build>
         <resources>
             <!-- 控制资源文件的拷贝 -->
             <resource>
-                <directory>src/main/resources</directory>
+                <directory>src/test/resources</directory>
                 <targetPath>${project.build.directory}</targetPath>
             </resource>
         </resources>
@@ -91,7 +105,6 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>${mainclass}</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

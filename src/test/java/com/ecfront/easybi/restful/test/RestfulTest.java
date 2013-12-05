@@ -1,5 +1,6 @@
 package com.ecfront.easybi.restful.test;
 
+import com.ecfront.easybi.base.utils.PropertyHelper;
 import com.ecfront.easybi.restful.exchange.HttpMethod;
 import com.ecfront.easybi.restful.exchange.ResponseVO;
 import com.ecfront.easybi.restful.exchange.Restful;
@@ -17,7 +18,7 @@ public class RestfulTest {
 
     @Test
     public void test() throws Exception {
-        Restful.getInstance().init("com.ecfront");
+        Restful.getInstance().init(PropertyHelper.get("scan_base_path"));
         ResponseVO vo = Restful.getInstance().excute(HttpMethod.GET, "group/", null);
         Assert.assertEquals(vo.getCode(), UniformCode.SUCCESS.getCode());
         vo = Restful.getInstance().excute(HttpMethod.GET, "group/1/user/", null);

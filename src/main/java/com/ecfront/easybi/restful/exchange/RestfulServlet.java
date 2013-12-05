@@ -1,6 +1,7 @@
 package com.ecfront.easybi.restful.exchange;
 
 import com.alibaba.fastjson.JSON;
+import com.ecfront.easybi.base.utils.PropertyHelper;
 import com.ecfront.easybi.restful.inner.UniformCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,22 +24,16 @@ import java.net.URLDecoder;
  * <servlet-name>servlet</servlet-name>
  * <url-pattern>/api/*</url-pattern><!-- 视情况而定-->
  * </servlet-mapping>
- * <context-param>
- * <param-name>scan_base_path</param-name>
- * <param-value>com.ecfront</param-value><!-- 视情况而定-->
- * </context-param>
  */
 public class RestfulServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
         if (logger.isDebugEnabled()) {
-            logger.debug("Init,Load Scan Base Path:{}", getServletContext()
-                    .getInitParameter(SCAN_BASE_PATH));
+            logger.debug("Init,Load Scan Base Path:{}", PropertyHelper.get(SCAN_BASE_PATH));
         }
         try {
-            Restful.getInstance().init(getServletContext()
-                    .getInitParameter(SCAN_BASE_PATH));
+            Restful.getInstance().init(PropertyHelper.get(SCAN_BASE_PATH));
         } catch (Exception e) {
             if (logger.isErrorEnabled()) {
                 logger.error("Error:{}", e.getMessage());
@@ -48,7 +43,7 @@ public class RestfulServlet extends HttpServlet {
 
     private void process(HttpServletRequest request, HttpServletResponse response,
                          HttpMethod methodType) throws IOException {
-        request.setCharacterEncoding("utf-8");
+        request.setCharacterEncoding("UTF-8");
         String pathInfo = URLDecoder.decode(request.getPathInfo(), "UTF-8");
         pathInfo = pathInfo.startsWith("/") ? pathInfo.substring(1) : pathInfo;
         response.setContentType("application/json; charset=utf-8");
@@ -65,7 +60,7 @@ public class RestfulServlet extends HttpServlet {
                 logger.debug("Processed... url:{},method:{}", pathInfo, methodType.getCode());
             }
         } catch (Exception e) {
-            vo = new ResponseVO(UniformCode.UNKNOWN_ERROR.getCode());
+            vo = ControlHelper.unknownError();
             if (logger.isErrorEnabled()) {
                 logger.error("Error:{}", e.getMessage());
             }

@@ -1,9 +1,11 @@
 package com.ecfront.easybi.restful.inner;
 
 
+import com.ecfront.easybi.base.utils.PropertyHelper;
 import com.ecfront.easybi.classscanner.exchange.ClassScanner;
 import com.ecfront.easybi.restful.exchange.HttpMethod;
 import com.ecfront.easybi.restful.exchange.annotation.*;
+import com.ecfront.easybi.restful.exchange.spring.SpringContextHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +46,12 @@ public class ControllerManager {
         if (logger.isDebugEnabled()) {
             logger.debug("Find & Add Class:{}", clazz.getSimpleName());
         }
-        Object object = clazz.newInstance();
+        Object object;
+        if (isSpringSupport) {
+            object = SpringContextHolder.getBean(clazz);
+        } else {
+            object = clazz.newInstance();
+        }
         String uri = clazz.getAnnotation(Uri.class).value();
         Method[] methods = clazz.getMethods();
         Annotation[] annotations;
@@ -79,7 +86,13 @@ public class ControllerManager {
     }
 
     private ControllerManager() {
+        String val = PropertyHelper.get(SPRING_SUPPORT);
+        isSpringSupport = null != val && "true".equalsIgnoreCase(val.trim()) ? true : false;
     }
+
+    private static boolean isSpringSupport;
+
+    private static final String SPRING_SUPPORT = "spring_support";
 
     private static volatile ControllerManager INSTANCE;
 
