@@ -4,12 +4,14 @@ import com.ecfront.easybi.restful.exchange.ControlHelper;
 import com.ecfront.easybi.restful.exchange.HttpMethod;
 import com.ecfront.easybi.restful.exchange.ResponseVO;
 import com.ecfront.easybi.restful.exchange.annotation.Model;
+import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,13 +24,13 @@ import java.util.UUID;
  */
 public class RestfulExecutor {
 
-    public ResponseVO execute(HttpMethod httpMethod, String uri, Object model, Map<String, Object[]> parameter, InputStream inputStream) throws InvocationTargetException, IllegalAccessException {
+    public ResponseVO execute(HttpMethod httpMethod, String uri, Object model, Map<String, Object[]> parameter, List<FileItem> fileItems) throws InvocationTargetException, IllegalAccessException {
         Object[] restfulResult = PathChainContainer.getInstance().parsePath(httpMethod, uri);
         if (restfulResult != null) {
             Object reflectObject = restfulResult[0];
             Method reflectMethod = (Method) restfulResult[1];
             List<Object> invokeArgs = new ArrayList<Object>();
-            if (packageInvokeArgs(reflectMethod.getParameterTypes(), (List<String>) restfulResult[2], parameter, model, invokeArgs)) {
+            if (packageInvokeArgs(reflectMethod, (List<String>) restfulResult[2], parameter, model, fileItems, invokeArgs)) {
                 return ControlHelper.success(reflectMethod.invoke(reflectObject, invokeArgs.toArray()));
             } else {
                 return ControlHelper.badRequest();
@@ -40,63 +42,70 @@ public class RestfulExecutor {
     /**
      * 解析并组装方法参数
      *
-     * @param reflectParameterTypes 反射得到的方法参数列表
-     * @param urlParameters         Restful中通过URL解析出来的参数列表
-     * @param requestParameters     Request中传入的参数列表
-     * @param model                 Request中的模型
-     * @param invokeArgs            需要返回的参数列表
+     * @param reflectMethod     反射得到的方法
+     * @param urlParameters     Restful中通过URL解析出来的参数列表
+     * @param requestParameters Request中传入的参数列表
+     * @param model             Request中的模型
+     * @param fileItems         上传文件列表
+     * @param invokeArgs        需要返回的参数列表
      * @return 是否成功解析
      */
-    private boolean packageInvokeArgs(Class<?>[] reflectParameterTypes, List<String> urlParameters, Map<String, Object[]> requestParameters, Object model, List<Object> invokeArgs) {
-        Class<?> parameterType;
+    private boolean packageInvokeArgs(Method reflectMethod, List<String> urlParameters, Map<String, Object[]> requestParameters, Object model, List<FileItem> fileItems, List<Object> invokeArgs) {
+        Type parameterType;
+        Type[] reflectGenericParameterTypes = reflectMethod.getGenericParameterTypes();
         //把URL解析出来的参数添加到invokeArgs中
-        for (int i = 0; i < reflectParameterTypes.length && i < urlParameters.size(); i++) {
-            parameterType = reflectParameterTypes[i];
-            if (String.class.isAssignableFrom(parameterType)) {
+        for (int i = 0; i < reflectGenericParameterTypes.length && i < urlParameters.size(); i++) {
+            parameterType = reflectGenericParameterTypes[i];
+            if (String.class.equals(parameterType)) {
                 invokeArgs.add(urlParameters.get(i));
             } else if (Integer.class
-                    .isAssignableFrom(parameterType)
+                    .equals(parameterType)
                     || int.class
-                    .isAssignableFrom(parameterType)) {
+                    .equals(parameterType)) {
                 invokeArgs.add(Integer.valueOf(urlParameters.get(i)));
             } else if (Long.class
-                    .isAssignableFrom(parameterType)
+                    .equals(parameterType)
                     || long.class
-                    .isAssignableFrom(parameterType)) {
+                    .equals(parameterType)) {
                 invokeArgs.add(Long.valueOf(urlParameters.get(i)));
             } else if (Double.class
-                    .isAssignableFrom(parameterType)
+                    .equals(parameterType)
                     || double.class
-                    .isAssignableFrom(parameterType)) {
+                    .equals(parameterType)) {
                 invokeArgs.add(Double.valueOf(urlParameters.get(i)));
             } else if (Float.class
-                    .isAssignableFrom(parameterType)
+                    .equals(parameterType)
                     || float.class
-                    .isAssignableFrom(parameterType)) {
+                    .equals(parameterType)) {
                 invokeArgs.add(Float.valueOf(urlParameters.get(i)));
             } else if (BigDecimal.class
-                    .isAssignableFrom(parameterType)) {
+                    .equals(parameterType)) {
                 invokeArgs.add(new BigDecimal(urlParameters.get(i)));
             } else if (UUID.class
-                    .isAssignableFrom(parameterType)) {
+                    .equals(parameterType)) {
                 invokeArgs.add(UUID.fromString(urlParameters.get(i)));
             } else {
                 if (logger.isWarnEnabled()) {
-                    logger.warn("The parameter type of " + parameterType.getName() + " is not registered.");
+                    logger.warn("The parameter type of " + parameterType + " is not registered.");
                 }
                 return false;
             }
         }
-        if (reflectParameterTypes.length > urlParameters.size()) {
-            for (int i = urlParameters.size(); i < reflectParameterTypes.length; i++) {
-                parameterType = reflectParameterTypes[i];
+        if (reflectGenericParameterTypes.length > urlParameters.size()) {
+            for (int i = urlParameters.size(); i < reflectGenericParameterTypes.length; i++) {
+                parameterType = reflectGenericParameterTypes[i];
                 if (parameterType.equals(Map.class)) {
                     invokeArgs.add(requestParameters);
-                } else if (model != null && parameterType.isAnnotationPresent(Model.class)) {
+                } else if (model != null && ((Class) parameterType).isAnnotationPresent(Model.class)) {
                     invokeArgs.add(model);
+                } else if (parameterType instanceof ParameterizedType) {
+                    Type[] types = ((ParameterizedType) parameterType).getActualTypeArguments();
+                    if (types.length == 1 && types[0].equals(FileItem.class)) {
+                        invokeArgs.add(fileItems);
+                    }
                 } else {
                     if (logger.isWarnEnabled()) {
-                        logger.warn("The parameter type of " + parameterType.getName() + " is not registered.");
+                        logger.warn("The parameter type of " + parameterType + " is not registered.");
                     }
                     return false;
                 }

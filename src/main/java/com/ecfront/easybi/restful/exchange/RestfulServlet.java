@@ -2,7 +2,9 @@ package com.ecfront.easybi.restful.exchange;
 
 import com.alibaba.fastjson.JSON;
 import com.ecfront.easybi.base.utils.PropertyHelper;
-import com.ecfront.easybi.restful.inner.UniformCode;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,8 +12,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.util.List;
 
 /**
  * <h1>Servlet 代理类</1h>
@@ -39,6 +43,9 @@ public class RestfulServlet extends HttpServlet {
                 logger.error("Error:{}", e.getMessage());
             }
         }
+        factory.setRepository((File)this.getServletConfig().getServletContext().getAttribute("javax.servlet.context.tempdir"));
+        factory.setSizeThreshold(1024*100);
+        servletFileUpload=new ServletFileUpload(factory);
     }
 
     private void process(HttpServletRequest request, HttpServletResponse response,
@@ -55,7 +62,8 @@ public class RestfulServlet extends HttpServlet {
         ResponseVO vo;
         try {
             Object model = null != request.getParameter(MODEL_FLAG) ? JSON.parse(request.getParameter(MODEL_FLAG)) : null;
-            vo = Restful.getInstance().excute(methodType, pathInfo, model, request.getParameterMap(), request.getInputStream());
+            fileItems=servletFileUpload.parseRequest(request);
+            vo = Restful.getInstance().excute(methodType, pathInfo, model, request.getParameterMap(), fileItems);
             if (logger.isDebugEnabled()) {
                 logger.debug("Processed... url:{},method:{}", pathInfo, methodType.getCode());
             }
@@ -112,6 +120,10 @@ public class RestfulServlet extends HttpServlet {
         HttpMethod type = getMethodType(req);
         process(req, resp, null != type ? type : HttpMethod.PUT);
     }
+
+    private static final DiskFileItemFactory factory=new DiskFileItemFactory();
+    private static ServletFileUpload servletFileUpload;
+    private static List<FileItem> fileItems;
 
     private static final String SCAN_BASE_PATH = "scan_base_path";
     private static final String METHOD_TYPE = "__method";

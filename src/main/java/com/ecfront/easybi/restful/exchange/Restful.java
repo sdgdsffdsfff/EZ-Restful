@@ -2,11 +2,13 @@ package com.ecfront.easybi.restful.exchange;
 
 import com.ecfront.easybi.restful.inner.ControllerManager;
 import com.ecfront.easybi.restful.inner.RestfulExecutor;
+import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -60,14 +62,14 @@ public class Restful {
      * @param uri         请求URI
      * @param model       请求包含的模型，要求此Object为@Model
      * @param parameter   请求参数
-     * @param inputStream 请求中的流信息
+     * @param fileItems 请求文件列表
      * @return 返回信息
      */
-    public ResponseVO excute(HttpMethod httpMethod, String uri, Object model, Map<String, Object[]> parameter, InputStream inputStream) throws InvocationTargetException, IllegalAccessException {
+    public ResponseVO excute(HttpMethod httpMethod, String uri, Object model, Map<String, Object[]> parameter, List<FileItem> fileItems) throws InvocationTargetException, IllegalAccessException {
         if (logger.isDebugEnabled()) {
             logger.debug("excuting... url:{},method:{}", uri, httpMethod.getCode());
         }
-        return RestfulExecutor.getInstance().execute(httpMethod, uri, model, parameter, inputStream);
+        return RestfulExecutor.getInstance().execute(httpMethod, uri, model, parameter, fileItems);
     }
 
     public static Restful getInstance() {
