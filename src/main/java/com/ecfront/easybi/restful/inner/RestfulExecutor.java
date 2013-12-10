@@ -1,5 +1,7 @@
 package com.ecfront.easybi.restful.inner;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.ecfront.easybi.restful.exchange.ControlHelper;
 import com.ecfront.easybi.restful.exchange.HttpMethod;
 import com.ecfront.easybi.restful.exchange.ResponseVO;
@@ -7,6 +9,7 @@ import com.ecfront.easybi.restful.exchange.annotation.Model;
 import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,7 +27,7 @@ import java.util.UUID;
  */
 public class RestfulExecutor {
 
-    public ResponseVO execute(HttpMethod httpMethod, String uri, Object model, Map<String, String> parameter, List<FileItem> fileItems) throws InvocationTargetException, IllegalAccessException {
+    public ResponseVO execute(HttpMethod httpMethod, String uri, Object model, Map<String, String[]> parameter, List<FileItem> fileItems) throws InvocationTargetException, IllegalAccessException {
         Object[] restfulResult = PathChainContainer.getInstance().parsePath(httpMethod, uri);
         if (restfulResult != null) {
             Object reflectObject = restfulResult[0];
@@ -50,7 +53,7 @@ public class RestfulExecutor {
      * @param invokeArgs        需要返回的参数列表
      * @return 是否成功解析
      */
-    private boolean packageInvokeArgs(Method reflectMethod, List<String> urlParameters, Map<String, String> requestParameters, Object model, List<FileItem> fileItems, List<Object> invokeArgs) {
+    private boolean packageInvokeArgs(Method reflectMethod, List<String> urlParameters, Map<String, String[]> requestParameters, Object model, List<FileItem> fileItems, List<Object> invokeArgs) {
         Type parameterType;
         Type[] reflectGenericParameterTypes = reflectMethod.getGenericParameterTypes();
         //把URL解析出来的参数添加到invokeArgs中
@@ -94,10 +97,14 @@ public class RestfulExecutor {
         if (reflectGenericParameterTypes.length > urlParameters.size()) {
             for (int i = urlParameters.size(); i < reflectGenericParameterTypes.length; i++) {
                 parameterType = reflectGenericParameterTypes[i];
-                if (parameterType.equals(Map.class)) {
+                if (parameterType instanceof ParameterizedTypeImpl&&((ParameterizedTypeImpl) parameterType).getRawType().equals(Map.class)) {
                     invokeArgs.add(requestParameters);
-                } else if (model != null && ((Class) parameterType).isAnnotationPresent(Model.class)) {
-                    invokeArgs.add(model);
+                } else if (model != null &&parameterType instanceof Class&& ((Class) parameterType).isAnnotationPresent(Model.class)) {
+                    if(model instanceof JSONObject){
+                        invokeArgs.add(JSON.toJavaObject((JSONObject)model,(Class) parameterType));
+                    }else{
+                        invokeArgs.add(model);
+                    }
                 } else if (parameterType instanceof ParameterizedType) {
                     Type[] types = ((ParameterizedType) parameterType).getActualTypeArguments();
                     if (types.length == 1 && types[0].equals(FileItem.class)) {

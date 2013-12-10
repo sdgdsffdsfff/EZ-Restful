@@ -40,7 +40,7 @@ public class Restful {
      * @return 返回信息
      * @see # execute(HttpMethod httpMethod, String uri, Object model, Map<String, String[]> parameter, InputStream inputStream)
      */
-    public ResponseVO excute(HttpMethod httpMethod, String uri, Map<String, String> parameter) throws InvocationTargetException, IllegalAccessException {
+    public ResponseVO excute(HttpMethod httpMethod, String uri, Map<String, String[]> parameter) throws InvocationTargetException, IllegalAccessException {
         return excute(httpMethod, uri, null, null, null, parameter);
     }
 
@@ -68,8 +68,8 @@ public class Restful {
      * @param parameter  请求参数
      * @return 返回信息
      */
-    public ResponseVO excute(HttpMethod httpMethod, String uri, Object model, List<FileItem> fileItems, String token, Map<String, String> parameter) throws InvocationTargetException, IllegalAccessException {
-        if (null != restfulSecurity && null != token) {
+    public ResponseVO excute(HttpMethod httpMethod, String uri, Object model, List<FileItem> fileItems, String token, Map<String, String[]> parameter) throws InvocationTargetException, IllegalAccessException {
+        if (null != restfulSecurity) {
             if (!restfulSecurity.auth(httpMethod, uri, token)) {
                 if (logger.isWarnEnabled()) {
                     logger.warn("Unauthorized,url:{},method:{}", uri, httpMethod.getCode());
@@ -96,7 +96,7 @@ public class Restful {
         String val = PropertyHelper.get(ConfigContainer.SPRING_SUPPORT);
         boolean isSpringSupport = null != val && "true".equalsIgnoreCase(val.trim()) ? true : false;
         if (isSpringSupport) {
-            restfulSecurity = SpringContextHolder.getBean(RestfulSecurity.class.getSimpleName());
+            restfulSecurity = SpringContextHolder.getBean(RestfulSecurity.class);
         } else {
             String clazz = PropertyHelper.get(ConfigContainer.SECURITY);
             if (null != clazz && !"".equals(clazz.trim())) {

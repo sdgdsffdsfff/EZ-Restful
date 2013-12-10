@@ -66,26 +66,16 @@ public class RestfulServlet extends HttpServlet {
             logger.debug("Processing... url:{},method:{}", pathInfo, methodType.getCode());
         }
         ResponseVO vo;
-        Map<String, String> param = new HashMap<String, String>();
         List<FileItem> fileItems = null;
         StringWriter writer = new StringWriter();
         IOUtils.copy(request.getInputStream(), writer, "UTF-8");
         String content = writer.toString();
-        if (null != content && "".equals(content.trim())) {
-            param = JSON.parseObject(content, Map.class);
-        }
-        Enumeration requestParams = request.getParameterNames();
-        String key;
-        while (requestParams.hasMoreElements()) {
-            key = (String) requestParams.nextElement();
-            param.put(key, request.getParameter(key));
-        }
-        Object model = param.containsKey(ConfigContainer.MODEL_FLAG) ? JSON.parse(param.get(ConfigContainer.MODEL_FLAG)) : null;
+        Object model = null!=content&&!"".equals(content.trim())? JSON.parse(URLDecoder.decode(content,"UTF-8")) : null;
         try {
             if (-1 != request.getContentType().toLowerCase().indexOf("multipart/form-data")) {
                 fileItems = servletFileUpload.parseRequest(request);
             }
-            vo = Restful.getInstance().excute(methodType, pathInfo, model, fileItems, param.get(ConfigContainer.TOKEN), param);
+            vo = Restful.getInstance().excute(methodType, pathInfo, model, fileItems, request.getParameter(ConfigContainer.TOKEN), request.getParameterMap());
             if (logger.isDebugEnabled()) {
                 logger.debug("Processed... url:{},method:{}", pathInfo, methodType.getCode());
             }
