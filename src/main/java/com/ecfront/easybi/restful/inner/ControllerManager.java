@@ -86,13 +86,11 @@ public class ControllerManager {
     }
 
     private ControllerManager() {
-        String val = PropertyHelper.get(SPRING_SUPPORT);
+        String val = PropertyHelper.get(ConfigContainer.SPRING_SUPPORT);
         isSpringSupport = null != val && "true".equalsIgnoreCase(val.trim()) ? true : false;
     }
 
     private static boolean isSpringSupport;
-
-    private static final String SPRING_SUPPORT = "spring_support";
 
     private static volatile ControllerManager INSTANCE;
 

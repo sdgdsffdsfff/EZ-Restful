@@ -21,7 +21,7 @@ public class SpringContextHolder implements ApplicationContextAware {
     @SuppressWarnings("unchecked")
     public static <T> T getBean(String name) {
         checkApplicationContext();
-        return (T) applicationContext.getBean(name);
+        return applicationContext.containsBean(name)?(T) applicationContext.getBean(name):null;
     }
 
 

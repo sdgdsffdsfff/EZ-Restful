@@ -2,6 +2,7 @@ package com.ecfront.easybi.restful.exchange;
 
 import com.alibaba.fastjson.JSON;
 import com.ecfront.easybi.base.utils.PropertyHelper;
+import com.ecfront.easybi.restful.inner.ConfigContainer;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -34,18 +35,18 @@ public class RestfulServlet extends HttpServlet {
     public void init() throws ServletException {
         super.init();
         if (logger.isDebugEnabled()) {
-            logger.debug("Init,Load Scan Base Path:{}", PropertyHelper.get(SCAN_BASE_PATH));
+            logger.debug("Init,Load Scan Base Path:{}", PropertyHelper.get(ConfigContainer.SCAN_BASE_PATH));
         }
         try {
-            Restful.getInstance().init(PropertyHelper.get(SCAN_BASE_PATH));
+            Restful.getInstance().init(PropertyHelper.get(ConfigContainer.SCAN_BASE_PATH));
         } catch (Exception e) {
             if (logger.isErrorEnabled()) {
                 logger.error("Error:{}", e.getMessage());
             }
         }
-        factory.setRepository((File)this.getServletConfig().getServletContext().getAttribute("javax.servlet.context.tempdir"));
-        factory.setSizeThreshold(1024*100);
-        servletFileUpload=new ServletFileUpload(factory);
+        factory.setRepository((File) this.getServletConfig().getServletContext().getAttribute("javax.servlet.context.tempdir"));
+        factory.setSizeThreshold(1024 * 100);
+        servletFileUpload = new ServletFileUpload(factory);
     }
 
     private void process(HttpServletRequest request, HttpServletResponse response,
@@ -61,9 +62,9 @@ public class RestfulServlet extends HttpServlet {
         }
         ResponseVO vo;
         try {
-            Object model = null != request.getParameter(MODEL_FLAG) ? JSON.parse(request.getParameter(MODEL_FLAG)) : null;
-            fileItems=servletFileUpload.parseRequest(request);
-            vo = Restful.getInstance().excute(methodType, pathInfo, model, request.getParameterMap(), fileItems);
+            Object model = null != request.getParameter(ConfigContainer.MODEL_FLAG) ? JSON.parse(request.getParameter(ConfigContainer.MODEL_FLAG)) : null;
+            fileItems = servletFileUpload.parseRequest(request);
+            vo = Restful.getInstance().excute(methodType, pathInfo, model, fileItems, request.getParameter(ConfigContainer.TOKEN), request.getParameterMap());
             if (logger.isDebugEnabled()) {
                 logger.debug("Processed... url:{},method:{}", pathInfo, methodType.getCode());
             }
@@ -78,7 +79,7 @@ public class RestfulServlet extends HttpServlet {
 
 
     private HttpMethod getMethodType(HttpServletRequest req) {
-        String type = req.getParameter(METHOD_TYPE);
+        String type = req.getParameter(ConfigContainer.METHOD_TYPE);
         if (null != type && !"".equalsIgnoreCase(type.trim())) {
             if ("PUT".equalsIgnoreCase(type)) {
                 return HttpMethod.PUT;
@@ -121,12 +122,10 @@ public class RestfulServlet extends HttpServlet {
         process(req, resp, null != type ? type : HttpMethod.PUT);
     }
 
-    private static final DiskFileItemFactory factory=new DiskFileItemFactory();
+    private static final DiskFileItemFactory factory = new DiskFileItemFactory();
     private static ServletFileUpload servletFileUpload;
     private static List<FileItem> fileItems;
 
-    private static final String SCAN_BASE_PATH = "scan_base_path";
-    private static final String METHOD_TYPE = "__method";
-    public static final String MODEL_FLAG = "__model";
+
     private static final Logger logger = LoggerFactory.getLogger(RestfulServlet.class);
 }

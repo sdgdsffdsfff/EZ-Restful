@@ -18,7 +18,7 @@ public class RestfulTest {
 
     @Test
     public void test() throws Exception {
-        Restful.getInstance().init(PropertyHelper.get("scan_base_path"));
+        Restful.getInstance().init(PropertyHelper.get("ez_restful_scan_base_path"));
         ResponseVO vo = Restful.getInstance().excute(HttpMethod.GET, "group/", null);
         Assert.assertEquals(vo.getCode(), UniformCode.SUCCESS.getCode());
         vo = Restful.getInstance().excute(HttpMethod.GET, "group/1/user/", null);
