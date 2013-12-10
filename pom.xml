@@ -7,6 +7,7 @@
     <groupId>com.ecfront</groupId>
     <artifactId>ez-restful</artifactId>
     <version>1.0</version>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <eazybi.version>1.0</eazybi.version>

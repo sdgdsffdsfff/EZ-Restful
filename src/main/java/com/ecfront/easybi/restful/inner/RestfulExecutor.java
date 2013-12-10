@@ -24,7 +24,7 @@ import java.util.UUID;
  */
 public class RestfulExecutor {
 
-    public ResponseVO execute(HttpMethod httpMethod, String uri, Object model, Map<String, String[]> parameter, List<FileItem> fileItems) throws InvocationTargetException, IllegalAccessException {
+    public ResponseVO execute(HttpMethod httpMethod, String uri, Object model, Map<String, String> parameter, List<FileItem> fileItems) throws InvocationTargetException, IllegalAccessException {
         Object[] restfulResult = PathChainContainer.getInstance().parsePath(httpMethod, uri);
         if (restfulResult != null) {
             Object reflectObject = restfulResult[0];
@@ -50,7 +50,7 @@ public class RestfulExecutor {
      * @param invokeArgs        需要返回的参数列表
      * @return 是否成功解析
      */
-    private boolean packageInvokeArgs(Method reflectMethod, List<String> urlParameters, Map<String, String[]> requestParameters, Object model, List<FileItem> fileItems, List<Object> invokeArgs) {
+    private boolean packageInvokeArgs(Method reflectMethod, List<String> urlParameters, Map<String, String> requestParameters, Object model, List<FileItem> fileItems, List<Object> invokeArgs) {
         Type parameterType;
         Type[] reflectGenericParameterTypes = reflectMethod.getGenericParameterTypes();
         //把URL解析出来的参数添加到invokeArgs中

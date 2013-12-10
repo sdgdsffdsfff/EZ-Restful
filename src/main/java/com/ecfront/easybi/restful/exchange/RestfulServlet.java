@@ -6,6 +6,7 @@ import com.ecfront.easybi.restful.inner.ConfigContainer;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,8 +16,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URLDecoder;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <h1>Servlet 代理类</1h>
@@ -61,10 +66,26 @@ public class RestfulServlet extends HttpServlet {
             logger.debug("Processing... url:{},method:{}", pathInfo, methodType.getCode());
         }
         ResponseVO vo;
+        Map<String, String> param = new HashMap<String, String>();
+        List<FileItem> fileItems = null;
+        StringWriter writer = new StringWriter();
+        IOUtils.copy(request.getInputStream(), writer, "UTF-8");
+        String content = writer.toString();
+        if (null != content && "".equals(content.trim())) {
+            param = JSON.parseObject(content, Map.class);
+        }
+        Enumeration requestParams = request.getParameterNames();
+        String key;
+        while (requestParams.hasMoreElements()) {
+            key = (String) requestParams.nextElement();
+            param.put(key, request.getParameter(key));
+        }
+        Object model = param.containsKey(ConfigContainer.MODEL_FLAG) ? JSON.parse(param.get(ConfigContainer.MODEL_FLAG)) : null;
         try {
-            Object model = null != request.getParameter(ConfigContainer.MODEL_FLAG) ? JSON.parse(request.getParameter(ConfigContainer.MODEL_FLAG)) : null;
-            fileItems = servletFileUpload.parseRequest(request);
-            vo = Restful.getInstance().excute(methodType, pathInfo, model, fileItems, request.getParameter(ConfigContainer.TOKEN), request.getParameterMap());
+            if (-1 != request.getContentType().toLowerCase().indexOf("multipart/form-data")) {
+                fileItems = servletFileUpload.parseRequest(request);
+            }
+            vo = Restful.getInstance().excute(methodType, pathInfo, model, fileItems, param.get(ConfigContainer.TOKEN), param);
             if (logger.isDebugEnabled()) {
                 logger.debug("Processed... url:{},method:{}", pathInfo, methodType.getCode());
             }
@@ -124,8 +145,6 @@ public class RestfulServlet extends HttpServlet {
 
     private static final DiskFileItemFactory factory = new DiskFileItemFactory();
     private static ServletFileUpload servletFileUpload;
-    private static List<FileItem> fileItems;
-
 
     private static final Logger logger = LoggerFactory.getLogger(RestfulServlet.class);
 }
