@@ -1,6 +1,5 @@
 package com.ecfront.easybi.restful.exchange;
 
-import com.ecfront.easybi.base.utils.PropertyHelper;
 import com.ecfront.easybi.restful.exchange.spring.SpringContextHolder;
 import com.ecfront.easybi.restful.inner.ConfigContainer;
 import com.ecfront.easybi.restful.inner.ControllerManager;
@@ -93,15 +92,12 @@ public class Restful {
     }
 
     private Restful() {
-        String val = PropertyHelper.get(ConfigContainer.SPRING_SUPPORT);
-        boolean isSpringSupport = null != val && "true".equalsIgnoreCase(val.trim()) ? true : false;
-        if (isSpringSupport) {
+        if (ConfigContainer.IS_SPRING_SUPPORT) {
             restfulSecurity = SpringContextHolder.getBean(RestfulSecurity.class);
         } else {
-            String clazz = PropertyHelper.get(ConfigContainer.SECURITY);
-            if (null != clazz && !"".equals(clazz.trim())) {
+            if (null != ConfigContainer.SECURITY && !"".equals(ConfigContainer.SECURITY.trim())) {
                 try {
-                    restfulSecurity = (RestfulSecurity) Class.forName(clazz.trim()).newInstance();
+                    restfulSecurity = (RestfulSecurity) Class.forName(ConfigContainer.SECURITY.trim()).newInstance();
                 } catch (Exception e) {
                     if (logger.isErrorEnabled()) {
                         logger.error("Error:{}", e.getMessage());
@@ -114,5 +110,6 @@ public class Restful {
     private RestfulSecurity restfulSecurity;
 
     private static volatile Restful INSTANCE;
+
     private static final Logger logger = LoggerFactory.getLogger(Restful.class);
 }

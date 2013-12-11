@@ -1,5 +1,7 @@
 package com.ecfront.easybi.restful.exchange;
 
+import com.ecfront.easybi.restful.inner.ConfigContainer;
+
 import java.util.Map;
 
 public class ControlHelper {
@@ -33,11 +35,10 @@ public class ControlHelper {
     }
 
     public static int[] parsePageByRequest(Map<String, String[]> parameter) {
-        String pageNumber = parameter.containsKey(FLAG_PAGE_NUMBER) ? parameter.get(FLAG_PAGE_NUMBER)[0] : "1";
-        String pageSize = parameter.containsKey(FLAG_PAGE_SIZE) ? parameter.get(FLAG_PAGE_SIZE)[0] : "10";
+        String pageNumber = parameter.containsKey(ConfigContainer.FLAG_PAGE_NUMBER) ? parameter.get(ConfigContainer.FLAG_PAGE_NUMBER)[0] : "1";
+        String pageSize = parameter.containsKey(ConfigContainer.FLAG_PAGE_SIZE) ? parameter.get(ConfigContainer.FLAG_PAGE_SIZE)[0] : "10";
         return new int[]{Integer.valueOf(pageNumber), Integer.valueOf(pageSize)};
     }
 
-    private static final String FLAG_PAGE_NUMBER = "pageNumber";
-    private static final String FLAG_PAGE_SIZE = "pageSize";
+
 }

@@ -1,7 +1,6 @@
 package com.ecfront.easybi.restful.exchange;
 
 import com.alibaba.fastjson.JSON;
-import com.ecfront.easybi.base.utils.PropertyHelper;
 import com.ecfront.easybi.restful.inner.ConfigContainer;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -18,10 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URLDecoder;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <h1>Servlet 代理类</1h>
@@ -40,10 +36,10 @@ public class RestfulServlet extends HttpServlet {
     public void init() throws ServletException {
         super.init();
         if (logger.isDebugEnabled()) {
-            logger.debug("Init,Load Scan Base Path:{}", PropertyHelper.get(ConfigContainer.SCAN_BASE_PATH));
+            logger.debug("Init,Load Scan Base Path:{}", ConfigContainer.SCAN_BASE_PATH);
         }
         try {
-            Restful.getInstance().init(PropertyHelper.get(ConfigContainer.SCAN_BASE_PATH));
+            Restful.getInstance().init(ConfigContainer.SCAN_BASE_PATH);
         } catch (Exception e) {
             if (logger.isErrorEnabled()) {
                 logger.error("Error:{}", e.getMessage());
@@ -67,13 +63,15 @@ public class RestfulServlet extends HttpServlet {
         }
         ResponseVO vo;
         List<FileItem> fileItems = null;
-        StringWriter writer = new StringWriter();
-        IOUtils.copy(request.getInputStream(), writer, "UTF-8");
-        String content = writer.toString();
-        Object model = null!=content&&!"".equals(content.trim())? JSON.parse(URLDecoder.decode(content,"UTF-8")) : null;
+        Object model = null;
         try {
-            if (-1 != request.getContentType().toLowerCase().indexOf("multipart/form-data")) {
+            if (null!=request.getContentType()&&-1 != request.getContentType().toLowerCase().indexOf("multipart/form-data")) {
                 fileItems = servletFileUpload.parseRequest(request);
+            } else {
+                StringWriter writer = new StringWriter();
+                IOUtils.copy(request.getInputStream(), writer, "UTF-8");
+                String content = writer.toString();
+                model = null != content && !"".equals(content.trim()) ? JSON.parse(URLDecoder.decode(content, "UTF-8")) : null;
             }
             vo = Restful.getInstance().excute(methodType, pathInfo, model, fileItems, request.getParameter(ConfigContainer.TOKEN), request.getParameterMap());
             if (logger.isDebugEnabled()) {
@@ -85,7 +83,11 @@ public class RestfulServlet extends HttpServlet {
                 logger.error("Error:{}", e.getMessage());
             }
         }
-        response.getWriter().print(JSON.toJSONString(vo));
+        if (request.getParameterMap().containsKey(ConfigContainer.JSONP_CALLBACK)) {
+            response.getWriter().print(ConfigContainer.JSONP_CALLBACK + "(" + JSON.toJSONString(vo) + ")");
+        } else {
+            response.getWriter().print(JSON.toJSONString(vo));
+        }
     }
 
 
