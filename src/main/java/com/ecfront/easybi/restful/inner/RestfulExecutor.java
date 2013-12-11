@@ -39,7 +39,7 @@ public class RestfulExecutor {
                 return ControlHelper.badRequest();
             }
         }
-        return ControlHelper.unknownError();
+        return ControlHelper.notFound();
     }
 
     /**
