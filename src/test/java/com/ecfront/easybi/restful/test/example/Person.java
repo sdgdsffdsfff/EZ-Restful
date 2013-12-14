@@ -1,7 +1,5 @@
 package com.ecfront.easybi.restful.test.example;
 
-import com.ecfront.easybi.restful.exchange.annotation.Model;
-
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -11,7 +9,6 @@ import java.util.List;
  * Person: 震宇
  * Date: 13-9-8
  */
-@Model
 public class Person {
 
     private String idcard;

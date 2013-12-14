@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.ecfront.easybi.restful.exchange.ControlHelper;
 import com.ecfront.easybi.restful.exchange.HttpMethod;
 import com.ecfront.easybi.restful.exchange.ResponseVO;
-import com.ecfront.easybi.restful.exchange.annotation.Model;
 import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,18 +96,21 @@ public class RestfulExecutor {
         if (reflectGenericParameterTypes.length > urlParameters.size()) {
             for (int i = urlParameters.size(); i < reflectGenericParameterTypes.length; i++) {
                 parameterType = reflectGenericParameterTypes[i];
-                if (parameterType instanceof ParameterizedTypeImpl&&((ParameterizedTypeImpl) parameterType).getRawType().equals(Map.class)) {
+                if (parameterType instanceof ParameterizedTypeImpl && ((ParameterizedTypeImpl) parameterType).getRawType().equals(Map.class)) {
+                    //Add parameter , type of Map<String,String[]>
                     invokeArgs.add(requestParameters);
-                } else if (model != null &&parameterType instanceof Class&& ((Class) parameterType).isAnnotationPresent(Model.class)) {
-                    if(model instanceof JSONObject){
-                        invokeArgs.add(JSON.toJavaObject((JSONObject)model,(Class) parameterType));
-                    }else{
+                } else if (parameterType instanceof ParameterizedType
+                        && null != ((ParameterizedType) parameterType).getActualTypeArguments()
+                        && 1 == ((ParameterizedType) parameterType).getActualTypeArguments().length
+                        && FileItem.class.equals(((ParameterizedType) parameterType).getActualTypeArguments()[0])) {
+                    //Add file items
+                    invokeArgs.add(fileItems);
+                } else if (model != null && parameterType instanceof Class) {
+                    //Add model
+                    if (model instanceof JSONObject) {
+                        invokeArgs.add(JSON.toJavaObject((JSONObject) model, (Class) parameterType));
+                    } else {
                         invokeArgs.add(model);
-                    }
-                } else if (parameterType instanceof ParameterizedType) {
-                    Type[] types = ((ParameterizedType) parameterType).getActualTypeArguments();
-                    if (types.length == 1 && types[0].equals(FileItem.class)) {
-                        invokeArgs.add(fileItems);
                     }
                 } else {
                     if (logger.isWarnEnabled()) {
