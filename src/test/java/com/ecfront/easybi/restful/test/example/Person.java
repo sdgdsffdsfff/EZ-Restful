@@ -4,11 +4,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Project: EasyBI_Framework
- * Person: 震宇
- * Date: 13-9-8
- */
 public class Person {
 
     private String idcard;

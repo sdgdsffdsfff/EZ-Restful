@@ -1,5 +1,8 @@
 package com.ecfront.easybi.restful.exchange;
 
+/**
+ * <h1>返回信息封装</h1>
+ */
 public class ResponseVO<T> {
 
     private int code;

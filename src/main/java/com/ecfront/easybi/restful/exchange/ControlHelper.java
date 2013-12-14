@@ -69,5 +69,4 @@ public class ControlHelper {
         return new int[]{Integer.valueOf(pageNumber), Integer.valueOf(pageSize)};
     }
 
-
 }

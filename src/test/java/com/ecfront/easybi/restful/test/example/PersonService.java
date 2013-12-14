@@ -10,16 +10,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Project: EasyBI_Framework
- * Person: 震宇
- * Date: 13-9-8
- */
 @Uri("user/")
 public class PersonService {
 
     @Get("")
-    public List<Person> findPersons() throws ParseException {
+    public List<Person> findPersons()  {
         logger.debug("findPersons");
         return new ArrayList<Person>() {{
             add(person1);
@@ -29,25 +24,25 @@ public class PersonService {
     }
 
     @Get("*/")
-    public Person getPerson(String idcard) throws ParseException {
+    public Person getPerson(String idcard)  {
         logger.debug("getPerson,idcard=" + idcard);
         return person1;
     }
 
     @Post("")
-    public Person savePerson(Person person) throws ParseException {
+    public Person savePerson(Person person)  {
         logger.debug("savePerson,person=" + person.toString());
         return person;
     }
 
     @Put("*/")
-    public Person updatePerson(String idcard, Person person) throws ParseException {
+    public Person updatePerson(String idcard, Person person)  {
         logger.debug("updatePerson,idcard=" + idcard + ",person=" + person.toString());
         return person;
     }
 
     @Delete("*/")
-    public void deletePerson(String idcard) throws ParseException {
+    public void deletePerson(String idcard) {
         logger.debug("deletePerson,idcard=" + idcard);
     }
 
