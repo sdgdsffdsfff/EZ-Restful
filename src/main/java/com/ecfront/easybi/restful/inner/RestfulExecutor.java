@@ -2,9 +2,9 @@ package com.ecfront.easybi.restful.inner;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.ecfront.easybi.restful.exchange.ControlHelper;
 import com.ecfront.easybi.restful.exchange.HttpMethod;
 import com.ecfront.easybi.restful.exchange.ResponseVO;
+import com.ecfront.easybi.restful.exchange.RestfulHelper;
 import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,12 +33,16 @@ public class RestfulExecutor {
             Method reflectMethod = (Method) restfulResult[1];
             List<Object> invokeArgs = new ArrayList<Object>();
             if (packageInvokeArgs(reflectMethod, (List<String>) restfulResult[2], parameter, model, fileItems, invokeArgs)) {
-                return ControlHelper.success(reflectMethod.invoke(reflectObject, invokeArgs.toArray()));
+                Object result = reflectMethod.invoke(reflectObject, invokeArgs.toArray());
+                if (result instanceof ResponseVO) {
+                    return (ResponseVO) result;
+                }
+                return RestfulHelper.success(result);
             } else {
-                return ControlHelper.badRequest();
+                return RestfulHelper.badRequest();
             }
         }
-        return ControlHelper.notFound();
+        return RestfulHelper.notFound();
     }
 
     /**

@@ -73,7 +73,7 @@ public class Restful {
                 if (logger.isWarnEnabled()) {
                     logger.warn("Unauthorized,url:{},method:{}", uri, httpMethod.getCode());
                 }
-                return ControlHelper.unauthorized();
+                return RestfulHelper.unauthorized();
             }
         }
         if (logger.isDebugEnabled()) {
@@ -100,7 +100,7 @@ public class Restful {
                     restfulSecurity = (RestfulSecurity) Class.forName(ConfigContainer.SECURITY.trim()).newInstance();
                 } catch (Exception e) {
                     if (logger.isErrorEnabled()) {
-                        logger.error("Error:{}", e.getMessage());
+                        logger.error("Restful error:{}", e);
                     }
                 }
             }

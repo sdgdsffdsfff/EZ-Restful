@@ -32,6 +32,7 @@ import java.util.List;
  * </servlet-mapping>
  */
 public class RestfulServlet extends HttpServlet {
+
     @Override
     public void init() throws ServletException {
         super.init();
@@ -42,7 +43,7 @@ public class RestfulServlet extends HttpServlet {
             Restful.getInstance().init(ConfigContainer.SCAN_BASE_PATH);
         } catch (Exception e) {
             if (logger.isErrorEnabled()) {
-                logger.error("Error:{}", e.getMessage());
+                logger.error("RestfulServlet error:{}", e);
             }
         }
         factory.setRepository((File) this.getServletConfig().getServletContext().getAttribute("javax.servlet.context.tempdir"));
@@ -65,7 +66,7 @@ public class RestfulServlet extends HttpServlet {
         List<FileItem> fileItems = null;
         Object model = null;
         try {
-            if (null!=request.getContentType()&&-1 != request.getContentType().toLowerCase().indexOf("multipart/form-data")) {
+            if (null != request.getContentType() && -1 != request.getContentType().toLowerCase().indexOf("multipart/form-data")) {
                 fileItems = servletFileUpload.parseRequest(request);
             } else {
                 StringWriter writer = new StringWriter();
@@ -78,9 +79,9 @@ public class RestfulServlet extends HttpServlet {
                 logger.debug("Processed... url:{},method:{}", pathInfo, methodType.getCode());
             }
         } catch (Exception e) {
-            vo = ControlHelper.unknownError();
+            vo = RestfulHelper.unknownError();
             if (logger.isErrorEnabled()) {
-                logger.error("Error:{}", e.getMessage());
+                logger.error("Process error:{}", e);
             }
         }
         if (request.getParameterMap().containsKey(ConfigContainer.JSONP_CALLBACK)) {
