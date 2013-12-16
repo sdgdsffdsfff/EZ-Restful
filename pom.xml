@@ -20,8 +20,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.ecfront.easybi</groupId>
-            <artifactId>classscanner</artifactId>
+            <groupId>com.ecfront</groupId>
+            <artifactId>ez-classscanner</artifactId>
             <version>${eazybi.version}</version>
         </dependency>
         <dependency>
