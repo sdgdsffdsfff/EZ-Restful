@@ -9,9 +9,6 @@ import com.ecfront.easybi.restful.test.example.Person;
 import junit.framework.Assert;
 import org.junit.Test;
 
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class RestfulTest {

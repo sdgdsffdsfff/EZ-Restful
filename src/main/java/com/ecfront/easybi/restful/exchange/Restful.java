@@ -1,9 +1,8 @@
 package com.ecfront.easybi.restful.exchange;
 
-import com.ecfront.easybi.restful.exchange.spring.SpringContextHolder;
-import com.ecfront.easybi.restful.inner.ConfigContainer;
 import com.ecfront.easybi.restful.inner.ControllerManager;
 import com.ecfront.easybi.restful.inner.RestfulExecutor;
+import com.ecfront.easybi.restful.inner.security.RestfulSecurityProcessor;
 import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,18 +67,14 @@ public class Restful {
      * @return 返回信息
      */
     public ResponseVO excute(HttpMethod httpMethod, String uri, Object model, List<FileItem> fileItems, String token, Map<String, String[]> parameter) throws InvocationTargetException, IllegalAccessException {
-        if (null != restfulSecurity) {
-            if (!restfulSecurity.auth(httpMethod, uri, token)) {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Unauthorized,url:{},method:{}", uri, httpMethod.getCode());
-                }
-                return RestfulHelper.unauthorized();
-            }
-        }
         if (logger.isDebugEnabled()) {
             logger.debug("Excuting... url:{},method:{}", uri, httpMethod.getCode());
         }
-        return RestfulExecutor.getInstance().execute(httpMethod, uri, model, parameter, fileItems);
+        ResponseVO responseVO = RestfulSecurityProcessor.getInstance().loginOrlogout(uri, parameter, token);
+        if (null != responseVO) {
+            return responseVO;
+        }
+        return RestfulExecutor.getInstance().execute(httpMethod, uri, model, parameter, fileItems, token);
     }
 
     public static Restful getInstance() {
@@ -92,22 +87,7 @@ public class Restful {
     }
 
     private Restful() {
-        if (ConfigContainer.IS_SPRING_SUPPORT) {
-            restfulSecurity = SpringContextHolder.getBean(RestfulSecurity.class);
-        } else {
-            if (null != ConfigContainer.SECURITY && !"".equals(ConfigContainer.SECURITY.trim())) {
-                try {
-                    restfulSecurity = (RestfulSecurity) Class.forName(ConfigContainer.SECURITY.trim()).newInstance();
-                } catch (Exception e) {
-                    if (logger.isErrorEnabled()) {
-                        logger.error("Restful error:{}", e);
-                    }
-                }
-            }
-        }
     }
-
-    private RestfulSecurity restfulSecurity;
 
     private static volatile Restful INSTANCE;
 

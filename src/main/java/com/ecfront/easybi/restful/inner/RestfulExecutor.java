@@ -5,6 +5,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.ecfront.easybi.restful.exchange.HttpMethod;
 import com.ecfront.easybi.restful.exchange.ResponseVO;
 import com.ecfront.easybi.restful.exchange.RestfulHelper;
+import com.ecfront.easybi.restful.exchange.security.BaseAuthedInfo;
+import com.ecfront.easybi.restful.inner.security.RestfulSecurityProcessor;
+import com.ecfront.easybi.restful.inner.security.TokenContainer;
 import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,13 +29,16 @@ import java.util.UUID;
  */
 public class RestfulExecutor {
 
-    public ResponseVO execute(HttpMethod httpMethod, String uri, Object model, Map<String, String[]> parameter, List<FileItem> fileItems) throws InvocationTargetException, IllegalAccessException {
+    public ResponseVO execute(HttpMethod httpMethod, String uri, Object model, Map<String, String[]> parameter, List<FileItem> fileItems, String token) throws InvocationTargetException, IllegalAccessException {
         Object[] restfulResult = PathChainContainer.getInstance().parsePath(httpMethod, uri);
         if (restfulResult != null) {
             Object reflectObject = restfulResult[0];
             Method reflectMethod = (Method) restfulResult[1];
             List<Object> invokeArgs = new ArrayList<Object>();
-            if (packageInvokeArgs(reflectMethod, (List<String>) restfulResult[2], parameter, model, fileItems, invokeArgs)) {
+            if (!RestfulSecurityProcessor.getInstance().auth(httpMethod, uri, reflectMethod, token)) {
+                return RestfulHelper.unauthorized();
+            }
+            if (packageInvokeArgs(reflectMethod, (List<String>) restfulResult[2], parameter, model, fileItems, invokeArgs, token)) {
                 Object result = reflectMethod.invoke(reflectObject, invokeArgs.toArray());
                 if (result instanceof ResponseVO) {
                     return (ResponseVO) result;
@@ -54,9 +60,10 @@ public class RestfulExecutor {
      * @param model             Request中的模型
      * @param fileItems         上传文件列表
      * @param invokeArgs        需要返回的参数列表
+     * @param token
      * @return 是否成功解析
      */
-    private boolean packageInvokeArgs(Method reflectMethod, List<String> urlParameters, Map<String, String[]> requestParameters, Object model, List<FileItem> fileItems, List<Object> invokeArgs) {
+    private boolean packageInvokeArgs(Method reflectMethod, List<String> urlParameters, Map<String, String[]> requestParameters, Object model, List<FileItem> fileItems, List<Object> invokeArgs, String token) {
         Type parameterType;
         Type[] reflectGenericParameterTypes = reflectMethod.getGenericParameterTypes();
         //把URL解析出来的参数添加到invokeArgs中
@@ -109,6 +116,8 @@ public class RestfulExecutor {
                         && FileItem.class.equals(((ParameterizedType) parameterType).getActualTypeArguments()[0])) {
                     //Add file items
                     invokeArgs.add(fileItems);
+                } else if (parameterType instanceof Class && BaseAuthedInfo.class.isAssignableFrom((Class) parameterType)) {
+                    invokeArgs.add(TokenContainer.getAuthedInfo(token));
                 } else if (model != null && parameterType instanceof Class) {
                     //Add model
                     if (model instanceof JSONObject) {

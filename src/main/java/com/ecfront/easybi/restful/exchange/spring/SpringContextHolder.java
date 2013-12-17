@@ -1,11 +1,11 @@
 package com.ecfront.easybi.restful.exchange.spring;
 
-import java.util.Map;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 @Component
 @Lazy(false)
@@ -21,7 +21,7 @@ public class SpringContextHolder implements ApplicationContextAware {
     @SuppressWarnings("unchecked")
     public static <T> T getBean(String name) {
         checkApplicationContext();
-        return applicationContext.containsBean(name)?(T) applicationContext.getBean(name):null;
+        return applicationContext.containsBean(name) ? (T) applicationContext.getBean(name) : null;
     }
 
 

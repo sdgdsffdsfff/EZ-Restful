@@ -3,15 +3,14 @@ package com.ecfront.easybi.restful.exchange.annotation;
 import java.lang.annotation.*;
 
 /**
- * 
  * @author gudaoxuri
  */
 
-@Target({ ElementType.METHOD })
+@Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Put {
 
-	String value();
+    String value();
 
 }

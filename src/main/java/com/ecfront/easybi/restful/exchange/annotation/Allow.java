@@ -2,14 +2,10 @@ package com.ecfront.easybi.restful.exchange.annotation;
 
 import java.lang.annotation.*;
 
-/**
- * @author gudaoxuri
- */
-
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Delete {
+public @interface Allow {
 
     String value();
 

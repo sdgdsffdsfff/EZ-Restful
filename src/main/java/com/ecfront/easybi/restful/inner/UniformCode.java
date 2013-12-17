@@ -22,6 +22,7 @@ public enum UniformCode {
 
     /**
      * 返回Code
+     *
      * @return
      */
     public int getCode() {
@@ -30,6 +31,7 @@ public enum UniformCode {
 
     /**
      * 返回Json格式的Code
+     *
      * @return
      */
     public String getStatusCode() {

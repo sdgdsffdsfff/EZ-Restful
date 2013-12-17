@@ -52,12 +52,19 @@ public class PathChainContainer {
                 //带*节点要把对应的值加入到参数列表中，比如 @Get("/user/*/")，请求：user/111/，111要加入到参数列表
                 args.add(path);
             } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Not find,method:{},uri:{}", httpMethod.getCode(), uri);
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Not find,method:{},uri:{}", httpMethod.getCode(), uri);
                 }
                 return null;
             }
             if (i + 1 == length) {
+                if (null == currentPathNode.reflectMethod || null == currentPathNode.reflectObject) {
+                    //存在请求url路径小于对应路径长度，如请求 demo/user/abc/ ,对应的只有demo/user/
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("Not find,method:{},uri:{}", httpMethod.getCode(), uri);
+                    }
+                    return null;
+                }
                 if (logger.isDebugEnabled()) {
                     logger.debug("Parsed Path,reflectMethod:{},args size:{}", currentPathNode.reflectMethod.getName(), args.size());
                 }
@@ -65,8 +72,8 @@ public class PathChainContainer {
             }
             currentPathChain = currentPathNode.children;
         }
-        if (logger.isDebugEnabled()) {
-            logger.debug("Not find,method:{},uri:{}", httpMethod.getCode(), uri);
+        if (logger.isWarnEnabled()) {
+            logger.warn("Not find,method:{},uri:{}", httpMethod.getCode(), uri);
         }
         return null;
     }
