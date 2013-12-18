@@ -5,7 +5,6 @@ import com.ecfront.easybi.restful.exchange.ResponseVO;
 import com.ecfront.easybi.restful.exchange.RestfulHelper;
 import com.ecfront.easybi.restful.exchange.annotation.Allow;
 import com.ecfront.easybi.restful.exchange.security.BaseAuthedInfo;
-import com.ecfront.easybi.restful.exchange.security.CurrentAuthedInfo;
 import com.ecfront.easybi.restful.exchange.security.RestfulSecurityAdapter;
 import com.ecfront.easybi.restful.exchange.spring.SpringContextHolder;
 import com.ecfront.easybi.restful.inner.ConfigContainer;

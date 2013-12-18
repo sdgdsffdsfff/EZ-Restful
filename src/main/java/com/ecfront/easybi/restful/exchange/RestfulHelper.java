@@ -2,6 +2,7 @@ package com.ecfront.easybi.restful.exchange;
 
 
 import com.ecfront.easybi.restful.inner.ConfigContainer;
+import com.ecfront.easybi.restful.inner.security.CurrentAuthedInfo;
 import org.apache.commons.fileupload.FileItem;
 
 import java.io.File;
@@ -13,6 +14,10 @@ import java.util.Map;
  * <h1>辅助类</h1>
  */
 public class RestfulHelper {
+
+    public static <E> E getCurrentAuthedInfo(){
+       return  CurrentAuthedInfo.get();
+    }
 
     /**
      * 分页解析
