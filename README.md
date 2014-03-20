@@ -77,7 +77,7 @@ Spring support :
 The Project uses a [Maven][]-based build system.
 
 ### Check out sources
-`git clone https://github.com/gudaoxuri/EasyBI.git`
+`git clone https://github.com/gudaoxuri/EZ-Restful.git`
 
 ### License
 
